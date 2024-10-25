@@ -27,3 +27,8 @@ variable "source_code_hash" {
   type = string
   description = "Virtual attribute used to trigger replacement when source code changes"
 }
+
+variable "dynamodb_name" {
+  type = string
+  description = "dynamodb name"
+}

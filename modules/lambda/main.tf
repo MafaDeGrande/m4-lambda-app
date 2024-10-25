@@ -19,6 +19,12 @@ resource "aws_lambda_function" "hello_world" {
   source_code_hash = var.source_code_hash
 
   role = aws_iam_role.lambda_exec.arn
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE = var.dynamodb_name 
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "hello_world" { 
@@ -46,4 +52,9 @@ resource "aws_iam_role" "lambda_exec" {
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_polict_for_dynamodb" {
+  role = aws_iam_role.lambda_exec.name 
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDynamoDBFullAccess"
 }

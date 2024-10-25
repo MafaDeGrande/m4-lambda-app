@@ -19,28 +19,23 @@ module "api_gateway" {
   create_domain_records = false
 
   routes = {
-    "POST /api/v1/hello" = {
+    for key, lambda_info in var.lambda_params : "${lambda_info.route}" => {
       integration = {
-        uri                    = var.lambda_arn
+        uri                    = var.lambdas[key].arn
         type                   = "AWS_PROXY"
         payload_format_version = "2.0"
         timeout_milliseconds   = 12000
       }
     }
-    "$default" = {
-      integration = {
-        uri = var.lambda_arn
-      }
-    }
   }
-
   tags = local.tags
 }
 
 resource "aws_lambda_permission" "apigw_lambda" {
+  for_each = var.lambdas 
   statement_id = "AllowExecutionFromAPIGateway"
   action = "lambda:InvokeFunction"
-  function_name = var.function_name
+  function_name = each.value.function_name
   principal = "apigateway.amazonaws.com"
   source_arn = "${module.api_gateway.api_execution_arn}/*"
 }

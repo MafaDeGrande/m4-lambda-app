@@ -32,3 +32,8 @@ variable "dynamodb_name" {
   type = string
   description = "dynamodb name"
 }
+
+variable "dynamodb_arn" {
+  type = string
+  description = "dynamodb arn"
+}

@@ -23,7 +23,6 @@ variable "lambda_params" {
     handler = string
     path = string
     key = string
-    env = string
     route = string
   }))
 }

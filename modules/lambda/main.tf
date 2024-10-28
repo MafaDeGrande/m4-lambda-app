@@ -49,6 +49,27 @@ resource "aws_iam_role" "lambda_exec" {
   })
 }
 
+resource "aws_iam_policy" "dynamodb_policy" {
+  name        = local.name
+  description = "Policy for Lambda to access DynamoDB"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+        Effect   = "Allow"
+        Action   = [
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = var.dynamodb_arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
@@ -56,5 +77,5 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
 
 resource "aws_iam_role_policy_attachment" "lambda_polict_for_dynamodb" {
   role = aws_iam_role.lambda_exec.name 
-  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  policy_arn = aws_iam_policy.dynamodb_policy.arn
 }

@@ -70,10 +70,8 @@ module "aws_lambda" {
   for_each = local.lambdas
   name = each.value.name
   handler = each.value.name
+  filename = "${each.value.path}/${each.value.key}"
   env = local.env
-  s3_bucket = aws_s3_bucket.lambda_bucket.bucket 
-  s3_key = module.s3[each.key].s3_key 
-  source_code_hash = module.s3[each.key].source_code_hash
   dynamodb_name = module.dynamodb.dynamodb_name
   dynamodb_arn = module.dynamodb.dynamodb_arn
 }
@@ -90,13 +88,3 @@ resource "aws_s3_bucket" "lambda_bucket" {
   bucket        = "s3lambda-teach-app-dev"
   force_destroy = true
 }
-
-module "s3" {
-  source = "./modules/s3/"
-  for_each = local.lambdas
-  bucket_id = aws_s3_bucket.lambda_bucket.id
-  path = each.value.path
-  key = each.value.key
-}
-
-

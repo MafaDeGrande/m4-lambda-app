@@ -18,43 +18,51 @@ provider "aws" {
 }
 
 locals {
+  env = "dev"
+  lambda_key = "/api/v1/"
+  lambda_name = "serverless-lambda"
   lambdas = {
     "api/v1/create" = {
-      name = "serverless_lambda_create"
+      name = "${local.lambda_name}create"
       handler = "create.handler"
       path = "${path.cwd}/todos/create"
       key = "create.zip"
-      env = "dev"
+      route = "POST ${local.lambda_key}create"
     }
     "api/v1/delete" = {
-      name = "serverless_lambda_delete"
+      name = "${local.lambda_name}-delete"
       handler = "delete.handler"
       path = "${path.cwd}/todos/delete"
       key = "delete.zip"
-      env = "dev"
+      route = "DELETE ${local.lambda_key}delete"
     }
     "api/v1/get" = {
-      name = "serverless_lambda_get"
+      name = "${local.lambda_name}-get"
       handler = "get.handler"
       path = "${path.cwd}/todos/get"
       key = "get.zip"
-      env = "dev"
+      route = "GET ${local.lambda_key}get"
     }
     "api/v1/list" = {
-      name = "serverless_lambda_list"
+      name = "${local.lambda_name}-list"
       handler = "list.handler"
       path = "${path.cwd}/todos/list"
       key = "list.zip"
-      env = "dev"
+      route = "GET ${local.lambda_key}list"
     }
     "api/v1/update" = {
-      name = "serverless_lambda_update"
+      name = "${local.lambda_name}-update"
       handler = "update.handler"
       path = "${path.cwd}/todos/update"
       key = "update.zip"
-      env = "dev"
+      route = "PUT ${local.lambda_key}update"
     }
   }
+}
+
+module "dynamodb" {
+  source = "./modules/dynamodb/"
+  name = "${local.lambda_name}-dynamodb"
 }
 
 module "aws_lambda" {
@@ -62,24 +70,21 @@ module "aws_lambda" {
   for_each = local.lambdas
   name = each.value.name
   handler = each.value.name
-  env = each.value.env
-  s3_bucket = module.s3[each.key].s3_bucket 
-  s3_key = module.s3[each.key].s3_key 
-  source_code_hash = module.s3[each.key].source_code_hash
+  filename = "${each.value.path}/${each.value.key}"
+  env = local.env
+  dynamodb_name = module.dynamodb.dynamodb_name
+  dynamodb_arn = module.dynamodb.dynamodb_arn
 }
 
 module "api_gateway" {
   source = "./modules/api_gateway"
-  name = "serverless_http_api"
-  env = "dev"
-  lambda_arn = module.aws_lambda[each.key].arn
-  function_name = module.aws_lambda[each.key].function_name
+  name = "${local.lambda_name}-http-api"
+  env = local.env
+  lambdas = module.aws_lambda
+  lambda_params = local.lambdas
 }
 
-module "s3" {
-  source = "./modules/s3/"
-  for_each = local.lambdas
-  bucket_name = "s3lambda-teach-app-dev"
-  path = each.value.path
-  key = each.value.key
+resource "aws_s3_bucket" "lambda_bucket" {
+  bucket        = "s3lambda-teach-app-dev"
+  force_destroy = true
 }

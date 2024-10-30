@@ -13,17 +13,17 @@ variable "handler" {
   description = "Function entrypoint in code"
 }
 
-variable "s3_bucket" {
+variable "dynamodb_name" {
   type = string
-  description = "S3 bucket location containing the function's deployment package"
+  description = "dynamodb name"
 }
 
-variable "s3_key" {
+variable "dynamodb_arn" {
   type = string
-  description = "S3 key of an object containing the function's deployment package"
+  description = "dynamodb arn"
 }
 
-variable "source_code_hash" {
+variable "filename" {
   type = string
-  description = "Virtual attribute used to trigger replacement when source code changes"
+  description = "path to the zip file where lambda function is"
 }

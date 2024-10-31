@@ -3,7 +3,7 @@ name: Deploy lambdas
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   terraform:

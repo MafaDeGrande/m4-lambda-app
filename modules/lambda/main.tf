@@ -16,6 +16,10 @@ resource "aws_lambda_function" "hello_world" {
 
   role = aws_iam_role.lambda_exec.arn
 
+  logging_config {
+    log_format = "Text"
+  }
+
   environment {
     variables = {
       DYNAMODB_TABLE = var.dynamodb_name 
@@ -23,7 +27,7 @@ resource "aws_lambda_function" "hello_world" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "hello_world" { 
+resource "aws_cloudwatch_log_group" "log_group" { 
   name = "/aws/lambda/${local.name}"
   retention_in_days = 7
 } 

@@ -84,6 +84,12 @@ module "api_gateway" {
   lambda_params = local.lambdas
 }
 
+module "grafana" {
+  source = "./modules/grafana"
+  name = "${local.lambda_name}-monitoring"
+  group_id = var.group_id
+}
+
 resource "aws_s3_bucket" "lambda_bucket" {
   bucket        = "s3lambda-teach-app-dev"
   force_destroy = true

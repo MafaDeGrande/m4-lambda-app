@@ -3,7 +3,7 @@ name: Deploy lambdas
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   terraform:
@@ -19,6 +19,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Create secret.tfvars file
+        run: echo "${{ secrets.TERRAFORM_VARS }}" > secret.tfvars
+
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -29,5 +32,5 @@ jobs:
         run: terraform validate
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var-file="secret.tfvars"
 
